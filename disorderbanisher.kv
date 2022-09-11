@@ -1,79 +1,43 @@
-#:kivy 1.0.9
+#:kivy 1.11.0
 
-
-BoxLayout:
-    orientation: 'vertical'
-    Menu:
-        size_hint_y: .1
-        manager: screen_manager
-    ScreenManagement:
-        size_hint_y: .9
-        id: screen_manager
-
-<Menu>:
-    orientation: "vertical"
-    ActionBar:
-        top: 0
-        ActionView:
-            ActionPrevious:
-                on_press: root.manager.current = 'screen_settings'
-            ActionButton:
-                text: 'Home'
-                on_press: root.manager.current = 'screen_home'
-            ActionButton:
-                text: 'Add New'
-                on_press: root.manager.current = 'screen_add'
-
-<AddNewForm>:
-    text_input: input
-    TextInput:
-        id: input
-        pos: root.center_x - 220, 300
-        size: 400,50
-    Button:
-        size: 130,40
-        pos: root.center_x - 100, 200
-        text: 'Submit'
-        on_release: root.submit_input()
-
-
-<ScreenManagement>:
-    id: screen_manager
-
-    HomeScreen:
-        name: 'screen_home'
-        manager: 'screen_manager'
-
-    AddScreen:
-        name: 'screen_add'
-        manager: 'screen_manager'
-
-    SettingsScreen:
-        name: 'screen_settings'
-        manager: 'screen_manager'
-
-
-<HomeScreen>:
-    BoxLayout:
-        orientation: "vertical"
-        MyRecycleView:
-
-<MyRecycleView>:
-    viewclass: 'Label'
+<RecycleViewRow>:
+    id: rv
+    text: ""
+    check: chk
+    canvas.before:
+        Color:
+            rgba: (.0, 0.9, .1, .3) if self.selected else (0.4, 0.4, 0.4, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    orientation: 'horizontal'
+    size_hint: 1.0, 1.0
+    Label:
+        text: root.text
+        size_hint_x : 1.0
+    CheckBox:
+        id: chk  
+<RV>:
+    id: rv
+    viewclass: 'RecycleViewRow'
     RecycleBoxLayout:
-        color: 1,1,1,1
-        default_size: None, dp(56)
+        default_size: None, 100
         default_size_hint: 1, None
         size_hint_y: None
         height: self.minimum_height
         orientation: 'vertical'
-
-<AddScreen>:
-    BoxLayout:
+<ToDoView>:
+    orientation: 'vertical'
+    GridLayout:
+        cols: 3
         Label:
-            text: "Add to list"
-
-<SettingsScreen>:
-    BoxLayout:
-        Label:
-            text: "Change settings here"
+            text: "Add or Select To Do"
+            font_size:32
+        Button:
+            text: "Add"
+            font_size:32
+        Button:
+            text: "Remove"
+            font_size:32
+            on_press: root.delete_row()
+    RV:

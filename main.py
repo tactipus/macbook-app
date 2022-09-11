@@ -1,80 +1,88 @@
-from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import ObjectProperty, StringProperty
-from kivy.uix.widget import Widget
-from kivy.storage.jsonstore import JsonStore
+from kivy.app import App
+from kivy.lang import Builder
 from kivy.uix.recycleview import RecycleView
+from kivy.uix.recycleview.views import RecycleDataViewBehavior
+from kivy.uix.recyclegridlayout import RecycleGridLayout
+from kivy.uix.behaviors import FocusBehavior
+from kivy.uix.recycleview.layout import LayoutSelectionBehavior
+from kivy.uix.recycleboxlayout import RecycleBoxLayout
+from kivy.uix.recyclegridlayout import RecycleGridLayout
+from kivy.uix.label import Label
+from kivy.storage.jsonstore import JsonStore
+
 from kivy.clock import Clock
+from kivy.lang import Builder
+from kivy.properties import StringProperty
+from kivy.properties import ObjectProperty
+from kivy.properties import ListProperty, BooleanProperty
+from kivy.properties import NumericProperty
 
 
-#form
-class AddNewForm(Widget):
-    text_input = ObjectProperty(None)
+class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, RecycleBoxLayout):
+    pass
+    ''' Adds selection and focus behaviour to the view. '''
+#-----------------------------------------------------------------------
+class RecycleViewRow(RecycleDataViewBehavior, BoxLayout):
+    ''' Add selection support to the Label '''
 
-    input = StringProperty('')
+    index = None
+    selected = BooleanProperty(False)
+    selectable = BooleanProperty(True)
 
-    store = JsonStore("data.json")
+    text = StringProperty('')
+    check = ObjectProperty(False)
 
-    def submit_input(self):
-        self.input = self.text_input.text
-        print("Assign input: {}".format(self.input))
-        self.save()
-        self.input = ''
+    def refresh_view_attrs(self, rv, index, data):
+        ''' Catch and handle the view changes '''
+        self.index = index
+        return super(RecycleViewRow, self).refresh_view_attrs(
+            rv, index, data)
 
-    def save(self):
-        self.store.put(self.input)
+    # def on_touch_down(self, touch):
+    #     ''' Add selection on touch down '''
+    #     if super(RecycleViewRow, self).on_touch_down(touch):
+    #         return True
+    #     if self.collide_point(*touch.pos) and self.selectable:
+    #         return self.parent.select_with_touch(self.index, touch)
+
+    # def apply_selection(self, rv, index, is_selected):
+    #     ''' Respond to the selection of items in the view. '''
+
+    #     self.selected = is_selected
+
+    #     if is_selected:
+    #         pass
+    #     else:
+    #         pass
 
 
-#menu
-class Menu(BoxLayout):
-    manager = ObjectProperty(None)
-
-
-#recycle view for home screen
-class MyRecycleView(RecycleView):
-
+class RV(RecycleView):
     def __init__(self, **kwargs):
-        super(MyRecycleView, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.load_data()
         Clock.schedule_interval(self.load_data, 1)
-
+    
     def load_data(self, *args):
-        store = JsonStore("data.json")
-        list_data = []
+        store = JsonStore('data.json')
+        data_list = []
         for item in store:
-            list_data.append({'text': item})
-
-        self.data = list_data
-
-
-# Declare both screens and manager
-class HomeScreen(Screen):
-    pass
+            data_list.append({'text': item})
+        self.data = data_list
 
 
-class SettingsScreen(Screen):
-    pass
+class ToDoView(BoxLayout):
+    def delete_row(self):
+        value = RecycleViewRow().check.active
+        if value:
+            self.remove_widget(RecycleViewRow().check.active)
+        print("5")
 
 
-class AddScreen(Screen):
-    def __init__(self, **kwargs):
-        super(AddScreen, self).__init__(**kwargs)
-        self.addNewForm = AddNewForm()
-        self.add_widget(self.addNewForm)
-
-
-class ScreenManagement(ScreenManager):
-    screen_home = ObjectProperty(None)
-    screen_add = ObjectProperty(None)
-    screen_settings = ObjectProperty(None)
-
-
-#app class
 class DisorderBanisherApp(App):
-    pass
-    # def build(self):
-    #     return Menu()
+    def build(self):
+        return ToDoView()
+
 
 if __name__ == '__main__':
     DisorderBanisherApp().run()
