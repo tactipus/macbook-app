@@ -1,7 +1,25 @@
 #:kivy 1.11.0
+#:import Factory kivy.factory.Factory
+
+
+<AddItemPopup>:
+    title: 'Add an Item'
+    size_hint: .5, .5
+    auto_dismiss: False
+    BoxLayout:
+        text_input: text_input
+        orientation: 'vertical'
+        TextInput:
+            id: text_input
+        Button:
+            text: 'Add'
+            on_press: root.add_row()
+        Button:
+            text: 'Dismiss'    
+            on_press: root.dismiss()
 
 <RecycleViewRow>:
-    id: rv
+    id: rvr
     text: ""
     check: chk
     canvas.before:
@@ -16,28 +34,37 @@
         text: root.text
         size_hint_x : 1.0
     CheckBox:
-        id: chk  
+        id: chk
+        on_active: root.set_check_true()
 <RV>:
     id: rv
     viewclass: 'RecycleViewRow'
     RecycleBoxLayout:
+        id: grid
         default_size: None, 100
         default_size_hint: 1, None
         size_hint_y: None
         height: self.minimum_height
         orientation: 'vertical'
+
 <ToDoView>:
     orientation: 'vertical'
     GridLayout:
         cols: 3
+        row_default_height: 300
+        size_hint_y: 0.25
         Label:
             text: "Add or Select To Do"
+            size_hint_x: 0.3
             font_size:32
         Button:
             text: "Add"
             font_size:32
+            size_hint_x: 0.35
+            on_press: root.show_popup()
         Button:
             text: "Remove"
             font_size:32
+            size_hint_x: 0.35
             on_press: root.delete_row()
     RV:
